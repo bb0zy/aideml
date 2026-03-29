@@ -28,6 +28,7 @@ OPENAI_TIMEOUT_EXCEPTIONS = (
 @once
 def _setup_openrouter_client():
     global _client
+    print(f"当前 OpenAI 版本：{openai.__version__}")
     _client = openai.OpenAI(
         base_url="https://api.minimaxi.com/v1",
         api_key=os.getenv("OPENAI_API_KEY"),
