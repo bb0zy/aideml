@@ -66,7 +66,25 @@ def query(
     )
     req_time = time.time() - t0
 
-    output = completion.choices[0].message.content
+    choice = completion.choices[0]
+
+    if func_spec is None:
+        output = choice.message.content
+    else:
+        assert (
+            choice.message.tool_calls
+        ), f"function_call is empty, it is not a function call: {choice.message}"
+        assert (
+            choice.message.tool_calls[0].function.name == func_spec.name
+        ), "Function name mismatch"
+        try:
+            output = json.loads(choice.message.tool_calls[0].function.arguments)
+        except json.JSONDecodeError as e:
+            logger.error(
+                f"Error decoding the function arguments: {choice.message.tool_calls[0].function.arguments}"
+            )
+            raise e
+    # output = completion.choices[0].message.content
 
     in_tokens = completion.usage.prompt_tokens
     out_tokens = completion.usage.completion_tokens
