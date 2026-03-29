@@ -11,6 +11,7 @@ from aide.backend.utils import (
     FunctionSpec,
     OutputType,
     backoff_create,
+    opt_messages_to_list
 )
 
 logger = logging.getLogger("aide")
@@ -46,28 +47,22 @@ def query(
     filtered_kwargs: dict = select_values(notnone, model_kwargs)  # type: ignore
 
     if func_spec is not None:
-        raise NotImplementedError(
-            "We are not supporting function calling in OpenRouter for now."
-        )
+        filtered_kwargs["tools"] = [func_spec.as_openai_tool_dict]
+        filtered_kwargs["tool_choice"] = func_spec.name
 
     # in case some backends dont support system roles, just convert everything to user
-    messages = [
-        {"role": "user", "content": message}
-        for message in [system_message, user_message]
-        if message
-    ]
+    # messages = [
+    #     {"role": "user", "content": message}
+    #     for message in [system_message, user_message]
+    #     if message
+    # ]
+    messages = opt_messages_to_list(system_message, user_message, convert_system_to_user=convert_system_to_user)
 
     t0 = time.time()
     completion = backoff_create(
         _client.chat.completions.create,
         OPENAI_TIMEOUT_EXCEPTIONS,
         messages=messages,
-        extra_body={
-            "provider": {
-                "order": ["Fireworks"],
-                "ignore": ["Together", "DeepInfra", "Hyperbolic"],
-            },
-        },
         **filtered_kwargs,
     )
     req_time = time.time() - t0

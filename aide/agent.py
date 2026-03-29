@@ -75,13 +75,13 @@ class Agent:
         journal: Journal,
     ):
         super().__init__()
-        self.task_desc = task_desc
-        self.cfg = cfg
-        self.acfg = cfg.agent
-        self.journal = journal
-        self.data_preview: str | None = None
-        self.start_time = time.time()
-        self.current_step = 0
+        self.task_desc = task_desc  # 任务描述（比如：分类任务、回归任务）
+        self.cfg = cfg  # 全局配置
+        self.acfg = cfg.agent  # 智能体专属配置
+        self.journal = journal  # 日志/记忆：记录所有生成的代码节点
+        self.data_preview: str | None = None  # 数据预览信息
+        self.start_time = time.time()  # 任务开始时间
+        self.current_step = 0  # 当前执行步数
 
     def search_policy(self) -> Node | None:
         """Select a node to work on (or None to draft a new node)."""
