@@ -11,7 +11,6 @@ from aide.backend.utils import (
     FunctionSpec,
     OutputType,
     backoff_create,
-    opt_messages_to_list
 )
 
 logger = logging.getLogger("aide")
@@ -51,12 +50,12 @@ def query(
         filtered_kwargs["tool_choice"] = func_spec.name
 
     # in case some backends dont support system roles, just convert everything to user
-    # messages = [
-    #     {"role": "user", "content": message}
-    #     for message in [system_message, user_message]
-    #     if message
-    # ]
-    messages = opt_messages_to_list(system_message, user_message, convert_system_to_user=convert_system_to_user)
+    messages = [
+        {"role": "user", "content": message}
+        for message in [system_message, user_message]
+        if message
+    ]
+    # messages = opt_messages_to_list(system_message, user_message, convert_system_to_user=convert_system_to_user)
 
     t0 = time.time()
     completion = backoff_create(
